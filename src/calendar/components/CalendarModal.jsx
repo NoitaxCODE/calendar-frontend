@@ -1,5 +1,5 @@
 import { addHours, differenceInSeconds } from 'date-fns';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Modal from 'react-modal';
 import DatePicker, { registerLocale } from "react-datepicker";
 
@@ -8,6 +8,7 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 
 import "react-datepicker/dist/react-datepicker.css";
 import { es } from 'date-fns/locale';
+import { useCalendarStore, useUiStore } from '../../hooks';
 
 registerLocale( 'es', es );
 
@@ -26,15 +27,18 @@ Modal.setAppElement('#root');
 
 export const CalendarModal = () => {
 
-  const [ isOpen, setIsOpen ] = useState(true)
+  const { isDateModalOpen, closeDateModal } = useUiStore();
+  const { activeEvents, startSavingEvent, closeEventSelected } = useCalendarStore()
+
   const [ formSubmitted, setFormSubmitted ] = useState(false)
 
-  const [formValues, setFormValues] = useState({
-    title: 'Fernando',
-    notes: 'Herrera',
+  const [ formValues, setFormValues ] = useState({
+    title: '',
+    notes: '',
     start: new Date(),
     end: addHours( new Date(), 2),
   });
+
 
   const titleClass = useMemo(() => {
 
@@ -45,6 +49,15 @@ export const CalendarModal = () => {
         : 'is-invalid';
 
   }, [ formValues.title, formSubmitted ])
+
+  useEffect(() => {
+
+    if (activeEvents !== null) {
+        setFormValues({ ...activeEvents })
+    }
+
+  }, [ activeEvents ])
+  
 
   const onInputChanged = ({target})=> {
     setFormValues({
@@ -61,10 +74,11 @@ export const CalendarModal = () => {
   }
 
   const onCloseModal = () => {
-    setIsOpen( false );
+    closeDateModal()
+    closeEventSelected()
   }
 
-  const onSubmit = (event)=> {
+  const onSubmit = async (event)=> {
     setFormSubmitted( true );
     event.preventDefault()
 
@@ -78,6 +92,10 @@ export const CalendarModal = () => {
     if ( formValues.title.length <= 0 ) return;
 
     console.log(formValues)
+
+    await startSavingEvent( formValues )
+    closeDateModal()
+    setFormSubmitted( false );
     // TODO:
     // remover errore en pantalla
     // cerrar modal
@@ -85,7 +103,7 @@ export const CalendarModal = () => {
 
   return (
     <Modal
-      isOpen={ isOpen }
+      isOpen={ isDateModalOpen }
       onRequestClose={ onCloseModal }
       style={ customStyles }
       className="modal"
