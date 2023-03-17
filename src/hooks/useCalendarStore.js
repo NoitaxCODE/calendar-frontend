@@ -16,7 +16,6 @@ export const useCalendarStore = () => {
 
   const startSavingEvent = async ( calendarEvent )=>{
     try {
-
       if(calendarEvent.id){
         // Actualizando
         await calendarApi.put(`/events/${ calendarEvent.id }`, calendarEvent);
@@ -34,9 +33,19 @@ export const useCalendarStore = () => {
     
   }
 
-  const startDeletingEvent = ()=> {
-    //TODO: Llegar al backend
-    dispatch(  onDeleteEvent() )
+  const startDeletingEvent = async ()=> {
+
+    try {
+
+      await calendarApi.delete(`/events/${ activeEvents.id }`)
+      dispatch(  onDeleteEvent() )
+
+    } catch (error) {
+
+      console.log(error)
+      Swal.fire('Error al borrar', error.response.data.msg, 'error');
+      
+    }
   }
 
   const closeEventSelected = ()=>{
