@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux"
 import calendarApi from "../api/calendarApi";
-import { clearErrorMessage, onChecking, onLogin, onLogout, onLogoutCalendar } from "../store";
+import { clearErrorMessage, onChecking, onLogin, onLogout, onLogoutCalendar, setRegister } from "../store";
 
 export const useAuthStore = ()=> {
 
-  const { status, user, errorMessage } = useSelector( state => state.auth );
+  const { status, user, errorMessage, register } = useSelector( state => state.auth );
   const dispatch = useDispatch();
 
   const startLogin = async ({ email, password })=> {
@@ -65,16 +65,24 @@ export const useAuthStore = ()=> {
     dispatch( onLogoutCalendar() );
     dispatch( onLogout() );
   }
+
+  const isRegister = ()=> {
+    register 
+      ? dispatch( setRegister( false ))
+      : dispatch( setRegister( true ))
+  }
   
   return {
     // Propiedades
     status,
     user,
     errorMessage,
+    register,
     // Metodos
     startLogin,
     startRegister,
     checkAuthToken,
-    startLogout
+    startLogout,
+    isRegister
   }
 }

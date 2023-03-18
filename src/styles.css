@@ -1,3 +1,8 @@
+body{
+  height: 100vh;
+  background: linear-gradient(hsl(219, 72%, 85%), hsl(165, 100%, 95%));
+}
+
 /* Modal */
 .ReactModalPortal > div{
   opacity: 0;
